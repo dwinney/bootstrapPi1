@@ -1,0 +1,53 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Runtime directories
+build/
+test/
+.vscode/
+bin/
+lib/
+scripts/tests/
+dev/
+kaon/basis_functions
+
+# Outputs 
+*.pdf
+*.eps
+*.ps
+*.root
+*.dat
+*.txt
+
+# hide non-public data
+analysis/COMPASS_pi1/raw_files
