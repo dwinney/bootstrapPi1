@@ -73,7 +73,7 @@ target_include_directories(PI1 INTERFACE src/)
 
 add_library(ITERATEKT STATIC ${SRC})
 target_link_libraries( ITERATEKT ROOT::Core ROOT::MathMore ROOT::Matrix ROOT::RIO ROOT::Rint ROOT::Gpad ROOT::Hist)
-target_link_libraries( ITERATEKT Boost::boost)
+target_link_libraries( ITERATEKT ${Boost_LIBRARIES} )
 target_link_libraries( ITERATEKT PI1)
 
 
@@ -82,7 +82,7 @@ install( TARGETS ITERATEKT
          ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} )
 
 add_executable( do_fit "global_fit.cpp" )
-target_link_libraries( do_fit PUBLIC ROOT::Core ROOT::MathMore ROOT::Matrix ROOT::RIO ROOT::Rint )
-target_link_libraries( do_fit PUBLIC Boost::boost)
-target_link_libraries( do_fit PUBLIC ITERATEKT )
-# target_link_libraries( do_fit PUBLIC PI1)
+target_link_libraries( do_fit ROOT::Core ROOT::MathMore ROOT::Matrix ROOT::RIO ROOT::Rint )
+target_link_libraries( do_fit ITERATEKT )
+target_link_libraries( do_fit PI1)
+target_link_libraries( do_fit ${Boost_LIBRARIES} )
