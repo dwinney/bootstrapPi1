@@ -76,7 +76,5 @@ install( TARGETS ITERATEKT
          ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} )
 
 add_executable( do_fit "global_fit.cpp" )
-target_link_libraries( do_fit ROOT::Core ROOT::MathMore ROOT::Matrix ROOT::RIO ROOT::Rint )
 target_link_libraries( do_fit ITERATEKT )
 target_link_libraries( do_fit PI1)
-target_link_libraries( do_fit ${Boost_LIBRARIES} )
