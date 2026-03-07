@@ -58,10 +58,7 @@ endif()
 
 if (DEFINED ENV{ITERATEKT})
     message("-- Environment variable ITERATEKT set! ($ENV{ITERATEKT})")
-    set(ITERATEKT_LIB  $ENV{ITERATEKT}/lib)
     include_directories($ENV{ITERATEKT}/src)
-    include_directories($ENV{ITERATEKT}/physics)
-    include_directories($ENV{ITERATEKT}/analysis)    
 else()
     message(WARNING "-- ITERATEKT environment variable not set!")
 endif()
@@ -69,17 +66,21 @@ endif()
 ##-----------------------------------------------------------------------
 ## Build a static version of iterateKT
 
-file(GLOB SRC "$ENV{ITERATEKT}/src/*.cpp" )
+file(GLOB SRC "$ENV{ITERATEKT}/src/*" )
 
 add_library(ITERATEKT STATIC ${SRC})
 target_link_libraries( ITERATEKT ROOT::Core ROOT::MathMore ROOT::Matrix ROOT::RIO ROOT::Rint ROOT::Gpad ROOT::Hist)
 target_link_libraries( ITERATEKT Boost::boost)
 
+add_library(PI1 INTERFACE)
+target_include_directories(PI1 INTERFACE ./src)
+
 install( TARGETS ITERATEKT
          LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
          ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} )
 
-add_executable( test "test.cpp" )
-target_link_libraries( test ROOT::Core ROOT::MathMore ROOT::Matrix ROOT::RIO ROOT::Rint )
-target_link_libraries( test Boost::boost)
-target_link_libraries( test ITERATEKT )
+add_executable( do_fit "global_fit.cpp" )
+target_link_libraries( do_fit PUBLIC ROOT::Core ROOT::MathMore ROOT::Matrix ROOT::RIO ROOT::Rint )
+target_link_libraries( do_fit PUBLIC Boost::boost)
+target_link_libraries( do_fit PUBLIC ITERATEKT )
+target_link_libraries( do_fit PUBLIC PI1)

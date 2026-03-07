@@ -19,10 +19,10 @@
 #include "plotter.hpp"
 #include "fitter.hpp"
 
-#include "amplitudes/pi1.hpp"
-#include "isobars/pi1.hpp"
-#include "COMPASS_pi1/fitter.hpp"
-#include "COMPASS_pi1/data.hpp"
+#include "pi1_isobar.hpp"
+#include "pi1_amplitude.hpp"
+#include "pi1_fitter.hpp"
+#include "pi1_isobar.hpp"
 
 int main()
 {
@@ -51,6 +51,9 @@ int main()
     // Put a file description at the beginning
     std::string description = "deck + contact, no form factor";
     
+    print("we in here");
+    exit(1);
+
     // -----------------------------------------------------------------------
     // Data set up
 
@@ -159,7 +162,7 @@ int main()
     std::array<std::string,5> headers = {"# bin", "m3pi [GeV]", "alpha", "Re delta", "Im delta"};
     out << std::left;
     for (auto x : headers) out << std::setw(spacing) << x;
-    out << endl;
+    out << std::endl;
     out << std::left << "# "+std::string(5*spacing-2, '-') << std::endl;
     // Table of subtraction pars
     for (uint i = 0; i <= max - min; i++)
