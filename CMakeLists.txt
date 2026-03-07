@@ -73,7 +73,7 @@ target_link_libraries( ITERATEKT ROOT::Core ROOT::MathMore ROOT::Matrix ROOT::RI
 target_link_libraries( ITERATEKT Boost::boost)
 
 add_library(PI1 INTERFACE)
-target_include_directories(PI1 INTERFACE ./src)
+target_include_directories(PI1 INTERFACE src/)
 
 install( TARGETS ITERATEKT
          LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
