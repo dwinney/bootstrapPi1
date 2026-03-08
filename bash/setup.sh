@@ -21,7 +21,7 @@ while [[ $i -le $max ]] ; do
         echo '#! /usr/bin/bash '
         echo
         echo '#SBATCH --job-name=pi1_'$i
-        echo '#SBATCH --output=output_'$1'.txt'
+        echo '#SBATCH --output=output_'$i'.txt'
         echo '#SBATCH --partition=icn'
         echo '#SBATCH --ntasks=1'
         echo '#SBATCH --nodes=1'
