@@ -6,6 +6,7 @@
 #SBATCH --ntasks=1
 #SBATCH --nodes=1
 
+source /home/icn/dwinney/.bashrc
 module purge
 module load lamod/boost/1.80
 module load lamod/ROOT/v6-28-04
