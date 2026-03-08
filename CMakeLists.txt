@@ -75,6 +75,6 @@ install( TARGETS ITERATEKT
          LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
          ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} )
 
-add_executable( do_fit "global_fit.cpp" )
+add_executable( do_fit "src/global_fit.cpp" )
 target_link_libraries( do_fit ITERATEKT )
 target_link_libraries( do_fit PI1)

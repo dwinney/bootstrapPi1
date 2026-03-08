@@ -33,7 +33,7 @@ int main()
     // Operating options
 
     // Which range of m3pi bins to consider
-    int min = 11, max = 49; 
+    int min = 11, max = 11; 
     double tolerance = 0.01;
 
     // Path to precalculated isoabrs
@@ -45,7 +45,7 @@ int main()
     std::string in_pars_file  = data_dir()+"best_fit.dat";
     
     // Where do we export the fit parameter values
-    std::string out_pars_file = working_dir()+"fit_results.dat";
+    std::string out_pars_file = current_dir()+"fit_results.dat";
     
     // Put a file description at the beginning
     std::string description   = "deck + contact, no form factor";

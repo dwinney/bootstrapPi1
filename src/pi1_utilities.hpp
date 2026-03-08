@@ -22,12 +22,21 @@ namespace iterateKT
     {
         // Find the correct data file using the top level repo directory
         std::string top_dir;
-        char const * env = std::getenv("BOOTSTRAP");
+        char const * env = std::getenv("BOOTSTRAP_SRC");
         if ( env == NULL || std::string(env) == "" ) exit(1);
         return std::string(env) + "/data/";  
     };
 
     std::string working_dir()
+    {
+        // Find the correct data file using the top level repo directory
+        std::string top_dir;
+        char const * env = std::getenv("BOOTSTRAP");
+        if ( env == NULL || std::string(env) == "" ) exit(1);
+        return std::string(env);  
+    };
+
+    std::string current_dir()
     {
         auto dir = std::filesystem::current_path();
         if ( std::string(dir) == "" ) exit(1);
