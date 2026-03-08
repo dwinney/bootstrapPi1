@@ -14,11 +14,10 @@
 #include "kinematics.hpp"
 #include "amplitude.hpp"
 #include "utilities.hpp"
-#include "colors.hpp"
 #include "constants.hpp"
-#include "plotter.hpp"
 #include "fitter.hpp"
 
+#include "pi1_utilities.hpp"
 #include "pi1_isobar.hpp"
 #include "pi1_amplitude.hpp"
 #include "pi1_fitter.hpp"
@@ -29,7 +28,7 @@ int main()
     using namespace iterateKT;
     using iterateKT::complex;
     using iterateKT::to_string;
-
+    
     // -----------------------------------------------------------------------
     // Operating options
 
@@ -38,24 +37,24 @@ int main()
     double tolerance = 0.01;
 
     // Path to precalculated isoabrs
-    std::string iso_path    = "/scripts/pi1/basis_functions/";
+    std::string iso_path      = data_dir()+"basis_functions/";
     // and the prefix given to each file
-    std::string file_prefix = "CD";
+    std::string file_prefix   = "CD";
 
     // Are we taking initial values from file? if so which?
-    bool initial_from_file   = true;
-    std::string in_pars_file = "/scripts/pi1/in_pars.dat";
+    std::string in_pars_file  = data_dir()+"best_fit.dat";
     
     // Where do we export the fit parameter values
-    std::string out_pars_file  = "/scripts/pi1/out_pars.dat";
-    // Put a file description at the beginning
-    std::string description = "deck + contact, no form factor";
+    std::string out_pars_file = "fit_results.dat";
     
-    print("we in here");
-    exit(1);
+    // Put a file description at the beginning
+    std::string description   = "deck + contact, no form factor";
 
     // -----------------------------------------------------------------------
     // Data set up
+
+    TRandom * rand = new TRandom(0);
+    rand->WriteRandom("rand_generator");
 
     // Import our data sets  
     std::vector<data_set>    data;          // Store the data
@@ -65,7 +64,7 @@ int main()
 
     for (int i = min; i <= max; i++)
     {
-        for (int j = 0; j < 4; j++) data.emplace_back(COMPASS::parse_JSON(i, j));
+        for (int j = 0; j < 4; j++) data.emplace_back(COMPASS::generate_pseudodata(i, j, rand));
         m3pi_vals.push_back(data.back()._extras["m3pi"]);
         labels.push_back("alpha_"+to_string(i));
         labels.push_back("delta_"+to_string(i));
@@ -76,40 +75,36 @@ int main()
 
     std::vector<complex> intial_vals;
 
-    if (initial_from_file)
-    {
-        std::ifstream infile(main_dir()+in_pars_file);
-        std::string line;
+    std::ifstream infile(in_pars_file);
+    std::string line;
 
-        int nimported = 0; // Mark how many lines we've imported
-        while (std::getline(infile, line))
-        {   
-            if (line.empty())        continue; // skips empty lines
-            if (line.front() == '#') continue; // Skip comment lines 
-            std::istringstream is(line);  
-            
-            if (nimported < max-min+1)
-            {
-                double trash, alpha, redelta, imdelta;
-                // Dont care about first two columns
-                is >> trash >> trash;
-                // we do about these though
-                is >> alpha >> redelta >> imdelta;
-    
-                initial_vals.push_back(alpha);
-                initial_vals.push_back(redelta+I*imdelta);
-                nimported++;
-                continue;
-            };
+    int nimported = 0; // Mark how many lines we've imported
+    while (std::getline(infile, line))
+    {   
+        if (line.empty())        continue; // skips empty lines
+        if (line.front() == '#') continue; // Skip comment lines 
+        std::istringstream is(line);  
+        
+        if (nimported < max-min+1)
+        {
+            double trash, alpha, redelta, imdelta;
+            // Dont care about first two columns
+            is >> trash >> trash;
+            // we do about these though
+            is >> alpha >> redelta >> imdelta;
 
-            double b_alpha, b_delta;
-            is >> b_alpha >> b_delta; 
-            initial_vals.push_back(b_alpha);
-            initial_vals.push_back(b_delta);
+            initial_vals.push_back(alpha);
+            initial_vals.push_back(redelta+I*imdelta);
+            nimported++;
+            continue;
         };
-    }
-    else initial_vals = std::vector<complex>(2*(max-min+1)+2, 1.);
 
+        double b_alpha, b_delta;
+        is >> b_alpha >> b_delta; 
+        initial_vals.push_back(b_alpha);
+        initial_vals.push_back(b_delta);
+    };
+   
     // -----------------------------------------------------------------------
     // Set up amplitude and iterative solution
     
@@ -126,7 +121,7 @@ int main()
 
     fitter<amplitude,COMPASS::fit_2D> fitter(amp, "Combined");
     fitter.set_tolerance(tolerance*1E3);
-    fitter.set_print_level(4);
+    fitter.set_print_level(0);
     fitter.set_strategy(0);
 
     // Add all bins
