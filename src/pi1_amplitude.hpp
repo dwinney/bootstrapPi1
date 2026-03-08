@@ -20,7 +20,8 @@
 #include "settings.hpp"
 #include "timer.hpp"
 
-#include"pi1_isobar.hpp"
+#include "pi1_utilities.hpp"
+#include "pi1_isobar.hpp"
 
 namespace iterateKT
 { 
@@ -41,7 +42,8 @@ namespace iterateKT
         sets._matching_intervals  = {xi_sth,  xi_pth,  xi_rth };
         sets._expansion_offsets   = {eps_sth, eps_pth, eps_rth};
 
-        phase_args iso_1   = {"madrid/delta_11.dat", 1.69,  1, 1, 2};
+        std::string path = data_dir();
+        phase_args iso_1   = {path+"delta_11.dat", 1.69,  1, 1, 2};
         sets._phase_shifts = { {id::P_wave, iso_1}, {id::Contact, iso_1}, {id::Deck, iso_1} };
 
         return sets;
