@@ -9,7 +9,7 @@ while [[ $i -le $max ]] ; do
     # Go to folder
     cd $BOOTSTRAP/fit_$i
     # add to queue
-    squeue batch.sh
+    sbatch run.sh
     # increment
     (( i += 1 ))
 done

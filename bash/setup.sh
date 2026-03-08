@@ -11,7 +11,7 @@ while [[ $i -le $max ]] ; do
     # Copy a version of the executable
     cp $BOOTSTRAP_SRC/bin/do_fit   $BOOTSTRAP/fit_$i
     # Also copy a version of the batch script
-    cp $BOOTSTRAP_SRC/bash/batch.sh $BOOTSTRAP/fit_$i
+    cp $BOOTSTRAP_SRC/bash/run.sh $BOOTSTRAP/fit_$i
     # increment
     (( i += 1 ))
 done
