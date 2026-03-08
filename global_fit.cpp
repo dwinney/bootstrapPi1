@@ -45,7 +45,7 @@ int main()
     std::string in_pars_file  = data_dir()+"best_fit.dat";
     
     // Where do we export the fit parameter values
-    std::string out_pars_file = "fit_results.dat";
+    std::string out_pars_file = working_dir()+"fit_results.dat";
     
     // Put a file description at the beginning
     std::string description   = "deck + contact, no form factor";
@@ -147,7 +147,7 @@ int main()
     auto pars = fitter.pars();
  
     std::ofstream out;
-    out.open(main_dir()+out_pars_file);
+    out.open(out_pars_file);
     int  precision = 12, spacing = precision + 10;
     
     // Preamble info

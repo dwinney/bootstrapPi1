@@ -13,6 +13,7 @@
 #ifndef PI1_UTILITIES
 #define PI1_UTILITIES
 
+#include <filesystem>
 #include <string>
 
 namespace iterateKT
@@ -24,6 +25,13 @@ namespace iterateKT
         char const * env = std::getenv("BOOTSTRAP");
         if ( env == NULL || std::string(env) == "" ) exit(1);
         return std::string(env) + "/data/";  
+    };
+
+    std::string working_dir()
+    {
+        auto dir = std::filesystem::current_path();
+        if ( std::string(dir) == "" ) exit(1);
+        return std::string(dir) + "/";  
     };
 };
 
