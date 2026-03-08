@@ -33,7 +33,7 @@ int main()
     // Operating options
 
     // Which range of m3pi bins to consider
-    int min = 11, max = 11; 
+    int min = 11, max = 49; 
     double tolerance = 0.01;
 
     // Path to precalculated isoabrs
