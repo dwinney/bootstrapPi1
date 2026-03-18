@@ -138,7 +138,7 @@ int main()
     fitter.make_real("b_alpha"); 
     fitter.make_real("b_delta"); 
 
-    // fitter.do_fit(BFF);
+    fitter.do_fit(BFF);
     
     // -----------------------------------------------------------------------
     // Print fit results to out_file
