@@ -51,29 +51,11 @@ int main()
     std::string description   = "deck + contact, no form factor";
 
     // -----------------------------------------------------------------------
-    // Data set up
-
-    TRandom * rand = new TRandom(0);
-    rand->WriteRandom("rand_generator");
-
-    // Import our data sets  
-    std::vector<data_set>    data;          // Store the data
-    std::vector<double>      m3pi_vals;     // m3pi values for each data_set
-    std::vector<std::string> labels;        // parameter labels
-    std::vector<complex>     initial_vals;  // starting values for fitting
-
-    for (int i = min; i <= max; i++)
-    {
-        for (int j = 0; j < 4; j++) data.emplace_back(COMPASS::generate_pseudodata(i, j, rand));
-        m3pi_vals.push_back(data.back()._extras["m3pi"]);
-        labels.push_back("alpha_"+to_string(i));
-        labels.push_back("delta_"+to_string(i));
-    };
-
-    // -----------------------------------------------------------------------
     // Import initial values
 
-    std::vector<complex> intial_vals;
+    std::vector<double>  m3pis;     // m3pi values for each data_set
+    std::vector<std::string> labels;    // parameter labels
+    std::vector<complex> BFF;   // Best fit values of parameters
 
     std::ifstream infile(in_pars_file);
     std::string line;
@@ -87,34 +69,51 @@ int main()
         
         if (nimported < max-min+1)
         {
-            double trash, alpha, redelta, imdelta;
-            // Dont care about first two columns
-            is >> trash >> trash;
-            // we do about these though
+            int i;
+            double alpha, redelta, imdelta, m3pi;
+            is >> i >> m3pi;
             is >> alpha >> redelta >> imdelta;
 
-            initial_vals.push_back(alpha);
-            initial_vals.push_back(redelta+I*imdelta);
+            m3pis.push_back(m3pi);
+            BFF.push_back(alpha);
+            BFF.push_back(redelta+I*imdelta);
+            labels.push_back("alpha_"+to_string(i));
+            labels.push_back("delta_"+to_string(i));
             nimported++;
             continue;
         };
 
         double b_alpha, b_delta;
         is >> b_alpha >> b_delta; 
-        initial_vals.push_back(b_alpha);
-        initial_vals.push_back(b_delta);
+        BFF.push_back(b_alpha);
+        BFF.push_back(b_delta);
     };
    
     // -----------------------------------------------------------------------
     // Set up amplitude and iterative solution
     
     // Set up our amplitude (uniterated)
-    auto args   = std::make_tuple(m3pi_vals, COMPASS::t_bins);
+    auto args   = std::make_tuple(m3pis, COMPASS::t_bins);
     amplitude amp  = new_amplitude<pi1_binned>(nullptr, args);
     amp->set_name("π₁ → 3π");
 
     // and import the pre-calculated isobars
     amp->import_solution(iso_path+file_prefix);
+    COMPASS::fit_2D::process_parameters(BFF, amp);
+
+    // -----------------------------------------------------------------------
+    // Data set up
+
+    TRandom * rand = new TRandom(0);
+    rand->WriteRandom("rand_generator");
+
+    // Import our data sets  
+    std::vector<data_set>    data;          // Store the data
+
+    for (int i = min; i <= max; i++)
+    {
+        for (int j = 0; j < 4; j++) data.emplace_back(COMPASS::generate_rescaled_pseudodata(i, j, rand, amp));
+    };
 
     // -----------------------------------------------------------------------
     // Set up fitter
@@ -139,12 +138,13 @@ int main()
     fitter.make_real("b_alpha"); 
     fitter.make_real("b_delta"); 
 
-    fitter.do_fit(initial_vals);
+    // fitter.do_fit(BFF);
     
     // -----------------------------------------------------------------------
     // Print fit results to out_file
     
-    auto pars = fitter.pars();
+    // auto pars = fitter.pars();
+    auto pars = BFF;
  
     std::ofstream out;
     out.open(out_pars_file);
@@ -164,7 +164,7 @@ int main()
     {
         out << std::left << std::setprecision(precision);
         out << std::setw(spacing) << i + min;
-        out << std::setw(spacing) << m3pi_vals[i];
+        out << std::setw(spacing) << m3pis[i];
         out << std::setw(spacing) << real(pars[2*i]);
         out << std::setw(spacing) << real(pars[2*i+1]);
         out << std::setw(spacing) << imag(pars[2*i+1]);

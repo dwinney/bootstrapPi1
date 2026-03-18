@@ -249,28 +249,28 @@ namespace iterateKT { namespace COMPASS
         // ---------------------------------------------------------------------------
         // Need to filter out any data outside of the physical kinematic region
     
-        kinematics kin = new_kinematics(m3pi, M_PION);
+        kinematics kin = amp->get_kinematics();
         std::vector<double> sig1, sig2, absM, errM;
-
-        // Random number generator with random seed
 
         for (int i = 0; i < N; i++)
         {
-            for (int j = 0; j <= i; j++)
+            for (int j = 0; j < i; j++)
             {
                 double s1 = bins[i];
                 double s2 = bins[j];
-                s1 *= s1; s2 *= s2; // mass squared
-    
-                if (!kin->in_decay_region(s1, s2)) continue;
-                if (are_equal(s1, s2))             continue;
                 
+                if (are_equal(s1, s2))             continue;
+                if (!kin->in_decay_region(s1, s2)) continue;
+                
+                s1 *= s1; s2 *= s2; // mass squared
                 
                 // Here instead of saving abs_M, we resample it
                 double mean      = abs_M[i][j];
                 double std_dev   = std_abs_M[i][j];
-                double model     = abs(amp->evaluate(s1, s2, amp->get_kinematics()->Sigma()-s1-s2));
-                double chi2      = norm( (mean-model)/std_dev );
+                if (iszero(std_dev)) continue;
+                
+                double model     = abs(amp->evaluate(s1, s2, kin->Sigma()-s1-s2));
+                double chi2      = std::norm( (mean-model)/std_dev );
                 double resampled = (chi2 > 1) ? rand->Gaus(mean, sqrt(chi2)*std_dev) : rand->Gaus(mean, std_dev);
                 
                 sig1.push_back(s1); sig2.push_back(s2);
@@ -305,6 +305,11 @@ namespace iterateKT { namespace COMPASS
     {
         std::string sm3pi = to_string(m3pi_bin), st = to_string(t_bin);
         std::string filename = "tBin_"+st+"/dalitz_m3piBin_"+sm3pi+"_tBin_"+st+".json";
+
+        // Set the amplitude to the correct bin
+        amp->set_option(option::set_tbin,         t_bin);
+        amp->set_option(option::set_mbin_COMPASS, m3pi_bin);
+
         auto out = generate_rescaled_pseudodata(filename, rand, amp);
         out._extras["t_bin"]    = t_bin;
         out._extras["m3pi_bin"] = m3pi_bin;
