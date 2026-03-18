@@ -112,7 +112,7 @@ int main()
 
     for (int i = min; i <= max; i++)
     {
-        for (int j = 0; j < 4; j++) data.emplace_back(COMPASS::generate_rescaled_pseudodata(i, j, rand, amp));
+        for (int j = 0; j < 4; j++) data.emplace_back(COMPASS::generate_pseudodata(i, j, rand, amp));
     };
 
     // -----------------------------------------------------------------------
@@ -138,7 +138,7 @@ int main()
     fitter.make_real("b_alpha"); 
     fitter.make_real("b_delta"); 
 
-    fitter.do_fit(BFF);
+    // fitter.do_fit(BFF);
     
     // -----------------------------------------------------------------------
     // Print fit results to out_file

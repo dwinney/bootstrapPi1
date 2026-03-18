@@ -175,8 +175,10 @@ namespace iterateKT { namespace COMPASS
                 // Here instead of saving abs_M, we resample it
                 double mean      = abs_M[i][j];
                 double std_dev   = std_abs_M[i][j];
+                if ( is_zero(std_dev) ) continue;
+
                 double resampled = rand->Gaus(mean, std_dev);
-                
+
                 sig1.push_back(s1); sig2.push_back(s2);
                 absM.push_back(resampled); 
                 errM.push_back(std_dev);
@@ -216,7 +218,7 @@ namespace iterateKT { namespace COMPASS
     };
 
         // Take in a data file from input and resample the data assuming gaussian errors
-    inline data_set generate_rescaled_pseudodata(std::string input, TRandom * rand, amplitude amp)
+    inline data_set generate_pseudodata(std::string input, TRandom * rand, amplitude amp)
     {
         // Final outputs
         data_set out;
@@ -272,7 +274,7 @@ namespace iterateKT { namespace COMPASS
                 double model     = abs(amp->evaluate(s1, s2, kin->Sigma()-s1-s2));
                 double chi2      = std::norm( (mean-model)/std_dev );
                 double resampled = (chi2 > 1) ? rand->Gaus(mean, sqrt(chi2)*std_dev) : rand->Gaus(mean, std_dev);
-                
+
                 sig1.push_back(s1); sig2.push_back(s2);
                 absM.push_back(resampled); 
                 errM.push_back(std_dev);
@@ -301,7 +303,7 @@ namespace iterateKT { namespace COMPASS
     };
 
     // Do the above but input bin numbers IDs which are subsequently saved in the data_set
-    inline data_set generate_rescaled_pseudodata(uint m3pi_bin, uint t_bin, TRandom * rand, amplitude amp)
+    inline data_set generate_pseudodata(uint m3pi_bin, uint t_bin, TRandom * rand, amplitude amp)
     {
         std::string sm3pi = to_string(m3pi_bin), st = to_string(t_bin);
         std::string filename = "tBin_"+st+"/dalitz_m3piBin_"+sm3pi+"_tBin_"+st+".json";
@@ -310,7 +312,7 @@ namespace iterateKT { namespace COMPASS
         amp->set_option(option::set_tbin,         t_bin);
         amp->set_option(option::set_mbin_COMPASS, m3pi_bin);
 
-        auto out = generate_rescaled_pseudodata(filename, rand, amp);
+        auto out = generate_pseudodata(filename, rand, amp);
         out._extras["t_bin"]    = t_bin;
         out._extras["m3pi_bin"] = m3pi_bin;
         return out;
