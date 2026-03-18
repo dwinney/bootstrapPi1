@@ -143,8 +143,7 @@ int main()
     // -----------------------------------------------------------------------
     // Print fit results to out_file
     
-    // auto pars = fitter.pars();
-    auto pars = BFF;
+    auto pars = fitter.pars();
  
     std::ofstream out;
     out.open(out_pars_file);
