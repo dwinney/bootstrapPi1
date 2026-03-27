@@ -269,7 +269,7 @@ namespace iterateKT { namespace COMPASS
                 // Here instead of saving abs_M, we resample it
                 double mean      = abs_M[i][j];
                 double std_dev   = std_abs_M[i][j];
-                if (iszero(std_dev)) continue;
+                if (is_zero(std_dev)) continue;
                 
                 double model     = abs(amp->evaluate(s1, s2, kin->Sigma()-s1-s2));
                 double chi2      = std::norm( (mean-model)/std_dev );
