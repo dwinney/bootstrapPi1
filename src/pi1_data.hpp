@@ -33,7 +33,7 @@ namespace iterateKT { namespace COMPASS
     
     // Parse a JSON file importing everything in a data_set object
     // Columns correspond to: s, t, Abs(M), Err(M)
-    inline data_set  parse_JSON(std::string input)
+    inline data_set  parse_JSON(uint m3pibin, std::string input)
     {
         // Final outputs
         data_set out;
@@ -47,20 +47,21 @@ namespace iterateKT { namespace COMPASS
         json data = json::parse(raw_file);
     
         // Calculate central m3pi in bin
-        auto m3pi_upper = data["bin_ranges"]["m3pi_upper_limit"].template get<double>();
-        auto m3pi_lower = data["bin_ranges"]["m3pi_lower_limit"].template get<double>();
+        std::string bin = "m3pi_bin_number_" + to_string(m3pibin);
+        auto m3pi_upper = data["bins"][bin]["bin_ranges"]["m3pi_upper_limit"].template get<double>();
+        auto m3pi_lower = data["bins"][bin]["bin_ranges"]["m3pi_lower_limit"].template get<double>();
         double m3pi = (m3pi_upper + m3pi_lower)/2;
         
         // Calculate central t in bin
-        auto t_upper = data["bin_ranges"]["t_upper_limit"].template get<double>();
-        auto t_lower = data["bin_ranges"]["t_lower_limit"].template get<double>();
+        auto t_upper = data["bins"][bin]["bin_ranges"]["t_upper_limit"].template get<double>();
+        auto t_lower = data["bins"][bin]["bin_ranges"]["t_lower_limit"].template get<double>();
         double t = -(t_upper + t_lower)/2;
     
         std::string id = "m3π = " + to_string(m3pi,3) + ", t' = " + to_string(-t,3);
 
-        auto bins      = data["bin_centers"];
-        auto abs_M     = data["abs_M"];
-        auto std_abs_M = data["std_abs_M"];
+        auto bins      = data["bins"][bin]["bin_centers"];
+        auto abs_M     = data["bins"][bin]["abs_M"];
+        auto std_abs_M = data["bins"][bin]["std_abs_M"];
         int N          = bins.size();
 
         // ---------------------------------------------------------------------------
@@ -110,9 +111,9 @@ namespace iterateKT { namespace COMPASS
     // Do the above but input bin numbers IDs which are subsequently saved in the data_set
     inline data_set parse_JSON(uint m3pi_bin, uint t_bin)
     {
-        std::string sm3pi = to_string(m3pi_bin), st = to_string(t_bin);
-        std::string filename = "tBin_"+st+"/dalitz_m3piBin_"+sm3pi+"_tBin_"+st+".json";
-        auto out = parse_JSON(filename);
+        std::string st = to_string(t_bin);
+        std::string filename = "tBin_"+st+".json";
+        auto out = parse_JSON(m3pi_bin, filename);
         out._extras["t_bin"]    = t_bin;
         out._extras["m3pi_bin"] = m3pi_bin;
         return out;
@@ -122,7 +123,7 @@ namespace iterateKT { namespace COMPASS
     // These methods produce pseudodata from the original data file to run a bootstrap
 
     // Take in a data file from input and resample the data assuming gaussian errors
-    inline data_set generate_pseudodata(std::string input, TRandom * rand)
+    inline data_set generate_pseudodata(uint m3pi_bin, std::string input, TRandom * rand)
     {
         // Final outputs
         data_set out;
@@ -136,20 +137,21 @@ namespace iterateKT { namespace COMPASS
         json data = json::parse(raw_file);
     
         // Calculate central m3pi in bin
-        auto m3pi_upper = data["bin_ranges"]["m3pi_upper_limit"].template get<double>();
-        auto m3pi_lower = data["bin_ranges"]["m3pi_lower_limit"].template get<double>();
+        std::string bin = "m3pi_bin_number_" + to_string(m3pi_bin);
+        auto m3pi_upper = data["bins"][bin]["bin_ranges"]["m3pi_upper_limit"].template get<double>();
+        auto m3pi_lower = data["bins"][bin]["bin_ranges"]["m3pi_lower_limit"].template get<double>();
         double m3pi = (m3pi_upper + m3pi_lower)/2;
         
         // Calculate central t in bin
-        auto t_upper = data["bin_ranges"]["t_upper_limit"].template get<double>();
-        auto t_lower = data["bin_ranges"]["t_lower_limit"].template get<double>();
+        auto t_upper = data["bins"][bin]["bin_ranges"]["t_upper_limit"].template get<double>();
+        auto t_lower = data["bins"][bin]["bin_ranges"]["t_lower_limit"].template get<double>();
         double t = -(t_upper + t_lower)/2;
     
         std::string id = "m3π = " + to_string(m3pi,3) + ", t' = " + to_string(-t,3);
 
-        auto bins      = data["bin_centers"];
-        auto abs_M     = data["abs_M"];
-        auto std_abs_M = data["std_abs_M"];
+        auto bins      = data["bins"][bin]["bin_centers"];
+        auto abs_M     = data["bins"][bin]["abs_M"];
+        auto std_abs_M = data["bins"][bin]["std_abs_M"];
         int N          = bins.size();
 
         // ---------------------------------------------------------------------------
@@ -209,16 +211,16 @@ namespace iterateKT { namespace COMPASS
     // Do the above but input bin numbers IDs which are subsequently saved in the data_set
     inline data_set generate_pseudodata(uint m3pi_bin, uint t_bin, TRandom * rand)
     {
-        std::string sm3pi = to_string(m3pi_bin), st = to_string(t_bin);
-        std::string filename = "tBin_"+st+"/dalitz_m3piBin_"+sm3pi+"_tBin_"+st+".json";
-        auto out = generate_pseudodata(filename, rand);
+        std::string st = to_string(t_bin);
+        std::string filename = "tBin_"+st+".json";
+        auto out = generate_pseudodata(m3pi_bin, filename, rand);
         out._extras["t_bin"]    = t_bin;
         out._extras["m3pi_bin"] = m3pi_bin;
         return out;
     };
 
         // Take in a data file from input and resample the data assuming gaussian errors
-    inline data_set generate_pseudodata(std::string input, TRandom * rand, amplitude amp)
+    inline data_set generate_pseudodata(uint m3pi_bin, std::string input, TRandom * rand, amplitude amp)
     {
         // Final outputs
         data_set out;
@@ -232,20 +234,21 @@ namespace iterateKT { namespace COMPASS
         json data = json::parse(raw_file);
     
         // Calculate central m3pi in bin
-        auto m3pi_upper = data["bin_ranges"]["m3pi_upper_limit"].template get<double>();
-        auto m3pi_lower = data["bin_ranges"]["m3pi_lower_limit"].template get<double>();
+        std::string bin = "m3pi_bin_number_" + to_string(m3pi_bin);
+        auto m3pi_upper = data["bins"][bin]["bin_ranges"]["m3pi_upper_limit"].template get<double>();
+        auto m3pi_lower = data["bins"][bin]["bin_ranges"]["m3pi_lower_limit"].template get<double>();
         double m3pi = (m3pi_upper + m3pi_lower)/2;
         
         // Calculate central t in bin
-        auto t_upper = data["bin_ranges"]["t_upper_limit"].template get<double>();
-        auto t_lower = data["bin_ranges"]["t_lower_limit"].template get<double>();
+        auto t_upper = data["bins"][bin]["bin_ranges"]["t_upper_limit"].template get<double>();
+        auto t_lower = data["bins"][bin]["bin_ranges"]["t_lower_limit"].template get<double>();
         double t = -(t_upper + t_lower)/2;
     
         std::string id = "m3π = " + to_string(m3pi,3) + ", t' = " + to_string(-t,3);
 
-        auto bins      = data["bin_centers"];
-        auto abs_M     = data["abs_M"];
-        auto std_abs_M = data["std_abs_M"];
+        auto bins      = data["bins"][bin]["bin_centers"];
+        auto abs_M     = data["bins"][bin]["abs_M"];
+        auto std_abs_M = data["bins"][bin]["std_abs_M"];
         int N          = bins.size();
 
         // ---------------------------------------------------------------------------
@@ -271,7 +274,7 @@ namespace iterateKT { namespace COMPASS
                 double std_dev   = std_abs_M[i][j];
                 if (iszero(std_dev)) continue;
                 
-                double model     = abs(amp->evaluate(s1, s2, kin->Sigma()-s1-s2));
+                double model     = abs(amp->evaluate_in_dalitz(s1, s2));
                 double chi2      = std::norm( (mean-model)/std_dev );
                 double resampled = (chi2 > 1) ? rand->Gaus(mean, sqrt(chi2)*std_dev) : rand->Gaus(mean, std_dev);
 
@@ -305,14 +308,14 @@ namespace iterateKT { namespace COMPASS
     // Do the above but input bin numbers IDs which are subsequently saved in the data_set
     inline data_set generate_pseudodata(uint m3pi_bin, uint t_bin, TRandom * rand, amplitude amp)
     {
-        std::string sm3pi = to_string(m3pi_bin), st = to_string(t_bin);
-        std::string filename = "tBin_"+st+"/dalitz_m3piBin_"+sm3pi+"_tBin_"+st+".json";
+        std::string st = to_string(t_bin);
+        std::string filename = "tBin_"+st+".json";
 
         // Set the amplitude to the correct bin
         amp->set_option(option::set_tbin,         t_bin);
         amp->set_option(option::set_mbin_COMPASS, m3pi_bin);
 
-        auto out = generate_pseudodata(filename, rand, amp);
+        auto out = generate_pseudodata(m3pi_bin, filename, rand, amp);
         out._extras["t_bin"]    = t_bin;
         out._extras["m3pi_bin"] = m3pi_bin;
         return out;

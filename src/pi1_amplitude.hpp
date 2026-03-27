@@ -19,8 +19,6 @@
 #include "kinematics.hpp"
 #include "settings.hpp"
 #include "timer.hpp"
-
-#include "pi1_utilities.hpp"
 #include "pi1_isobar.hpp"
 
 namespace iterateKT
@@ -42,8 +40,8 @@ namespace iterateKT
         sets._matching_intervals  = {xi_sth,  xi_pth,  xi_rth };
         sets._expansion_offsets   = {eps_sth, eps_pth, eps_rth};
 
-        std::string path = data_dir();
-        phase_args iso_1   = {path+"delta_11.dat", 1.69,  1, 1, 2};
+        std::string path = main_dir() + "/physics/phase_shifts/";
+        phase_args iso_1   = {path+"madrid/delta_11.dat", 1.69,  1, 1, 2};
         sets._phase_shifts = { {id::P_wave, iso_1}, {id::Contact, iso_1}, {id::Deck, iso_1} };
 
         return sets;
@@ -81,7 +79,7 @@ namespace iterateKT
             if  (above_3bcut){ q *= -1; rho *= -1; };
 
             complex z2 = q*q / lam2;
-            complex blatt_weisskopf = 1./(1+z2);
+            complex blatt_weisskopf = 2./(1+z2);
             return z2*blatt_weisskopf*rho;
         };
 
@@ -201,6 +199,7 @@ namespace iterateKT
         inline uint N_pars(){ return _current->N_pars(); };
         inline void set_parameters(std::vector<complex> x){ _current->set_parameters(x); };
         inline complex evaluate(complex s, complex t, complex u){ return _current->evaluate(s, t, u); };
+        inline complex evaluate_in_dalitz(double s, double t){ return _current->evaluate_in_dalitz(s, t); };
 
         // Observables
         inline double width(){ return _current->width() ; };
@@ -221,6 +220,11 @@ namespace iterateKT
                 _tbins[i]->get_isobars()[0]->import_iteration<2>(file);
             };
         };
+
+        inline void precompute_dalitz(uint N)
+        {
+            for (auto bin : _tbins) bin->precompute_dalitz(N);
+        };  
 
         private:
 
@@ -298,6 +302,7 @@ namespace iterateKT
         inline kinematics get_kinematics(){ return _current->get_kinematics(); };
         inline void set_parameters(std::vector<complex> x){ _current->set_parameters(x); };
         inline complex evaluate(complex s, complex t, complex u){ return _current->evaluate(s, t, u); };
+        inline complex evaluate_in_dalitz(double s, double t){ return _current->evaluate_in_dalitz(s, t); };
 
         // Observables
         inline double width(){ return _current->width() ; };
@@ -355,7 +360,13 @@ namespace iterateKT
             };
         };
 
-        private: 
+        inline void precompute_dalitz(uint N)
+        {
+            for (auto bin : _mbins) bin->precompute_dalitz(N);
+            return;
+        };
+
+        protected: 
 
         // Store each m3pi requires its own kinematics and amplitude
         std::vector<amplitude>  _mbins;

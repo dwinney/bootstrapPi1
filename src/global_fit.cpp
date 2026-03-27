@@ -34,7 +34,7 @@ int main()
 
     // Which range of m3pi bins to consider
     int min = 11, max = 49; 
-    double tolerance = 0.01;
+    double tolerance = 0.001;
 
     // Path to precalculated isoabrs
     std::string iso_path      = data_dir()+"basis_functions/";
@@ -99,6 +99,7 @@ int main()
 
     // and import the pre-calculated isobars
     amp->import_solution(iso_path+file_prefix);
+    amp->precompute_dalitz(300);
     COMPASS::fit_2D::process_parameters(BFF, amp);
 
     // -----------------------------------------------------------------------
@@ -142,39 +143,8 @@ int main()
     
     // -----------------------------------------------------------------------
     // Print fit results to out_file
-    
-    auto pars = fitter.pars();
- 
-    std::ofstream out;
-    out.open(out_pars_file);
-    int  precision = 12, spacing = precision + 10;
-    
-    // Preamble info
-    out << std::left << "# "+description << std::endl;
-    out << std::left << "# average χ²/Dalitz = "+to_string(fitter.fcn()) << std::endl;
-    out << std::left << "# "+std::string(5*spacing-2, '-') << std::endl;
-    std::array<std::string,5> headers = {"# bin", "m3pi [GeV]", "alpha", "Re delta", "Im delta"};
-    out << std::left;
-    for (auto x : headers) out << std::setw(spacing) << x;
-    out << std::endl;
-    out << std::left << "# "+std::string(5*spacing-2, '-') << std::endl;
-    // Table of subtraction pars
-    for (uint i = 0; i <= max - min; i++)
-    {
-        out << std::left << std::setprecision(precision);
-        out << std::setw(spacing) << i + min;
-        out << std::setw(spacing) << m3pis[i];
-        out << std::setw(spacing) << real(pars[2*i]);
-        out << std::setw(spacing) << real(pars[2*i+1]);
-        out << std::setw(spacing) << imag(pars[2*i+1]);
-        out << std::endl;
-    };
-    // Tack on the two t-slopes at the end
-    out << std::left << "# "+std::string(2*spacing-2, '-') << std::endl;
-    out << std::left << std::setw(spacing) << "# b_alpha" << std::setw(spacing) << "b_delta" << std::endl;
-    out << std::left << "# "+std::string(2*spacing-2, '-') << std::endl;
-    out << std::left << std::setw(spacing) << real(pars[2*(max-min)+2]) << std::setw(spacing) << real(pars[2*(max-min)+3]) << std::endl;
-    out.close();
-
+    COMPASS::export_parameters({min, max}, fitter.pars(), 
+                               "average χ² per Dalitz: "+iterateKT::to_string(fitter.fcn()), 
+                               out_pars_file);
     return 0;
 };
