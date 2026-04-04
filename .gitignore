@@ -46,8 +46,7 @@ kaon/basis_functions
 *.eps
 *.ps
 *.root
-*.dat
-*.txt
+
 
 # hide non-public data
 analysis/COMPASS_pi1/raw_files
