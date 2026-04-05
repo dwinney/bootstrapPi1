@@ -35,22 +35,22 @@ void process()
     std::unique_ptr<TTree> tree = std::make_unique<TTree>( "bootstrap", "bootstrap");
 
     // Temporary save locations for parameters
-    std::array<double,N_BIN_MAX-N_BIN_MIN+1> Nc, Ncp, rNd, imd, mNd, aNd;
+    std::array<double,N_BIN_MAX-N_BIN_MIN+1> Nc, Ncp, rNd, iNd, mNd, aNd;
     double c, cp, d, fcn;
 
     tree->Branch("fcn", &fcn, "fcn/D");
     for (int index = 0; index <= N_BIN_MAX-N_BIN_MIN; index++)
     {
         std::string si = std::to_string(index+N_BIN_MIN);
-        tree->Branch( ("|Nc_"  +si+"|").c_str(),  &Nc[index], ("|Nc_"+si+"|/D").c_str());
+        tree->Branch( ("modNc_"  +si).c_str(),  &Nc[index], ("|Nc_"+si+"|/D").c_str());
         if (!minimal)
         {
-            tree->Branch( ("reNcp_" +si    ).c_str(), &aNd[index], ("reNcp_"+si+"/D").c_str());
+            tree->Branch( ("reNcp_" +si).c_str(), &Ncp[index], ("reNcp_"+si+"/D").c_str());
         };
-        tree->Branch( ("reNd_" +si    ).c_str(), &aNd[index], ("reNd_"+si+"/D").c_str());
-        tree->Branch( ("imNd_" +si    ).c_str(), &mNd[index], ("imNd_"+si+"/D").c_str());
-        tree->Branch( ("argNd_"+si    ).c_str(), &aNd[index], ("argNd_"+si+"/D").c_str());
-        tree->Branch( ("modNd_"+si    ).c_str(), &mNd[index], ("modNd_"+si+"/D").c_str());
+        tree->Branch( ("reNd_" +si).c_str(), &rNd[index], ("reNd_"+si+"/D").c_str());
+        tree->Branch( ("imNd_" +si).c_str(), &iNd[index], ("imNd_"+si+"/D").c_str());
+        tree->Branch( ("argNd_"+si).c_str(), &aNd[index], ("argNd_"+si+"/D").c_str());
+        tree->Branch( ("modNd_"+si).c_str(), &mNd[index], ("modNd_"+si+"/D").c_str());
     };
     tree->Branch("c", &c, "c/D");
     if (!minimal) tree->Branch("cp", &cp, "cp/D");
@@ -80,14 +80,13 @@ void process()
 
             if (n <= N_BIN_MAX-N_BIN_MIN)
             {
-                double rNd, iNd;
-                is >> trash >> trash >> Nc[n] >> rNcp[n] >> trash >> rNd[n] >> iNd[n];
+                is >> trash >> trash >> Nc[n] >> Ncp[n] >> trash >> rNd[n] >> iNd[n];
                 std::complex<double> Nd(rNd[n], iNd[n]);
                 mNd[n] = abs(Nd); aNd[n] = arg(Nd);
                 n++;
                 continue;
             };
-            is >> c >> d;  
+            is >> c >> cp >> d;  
             break;
         };
         tree->Fill();
