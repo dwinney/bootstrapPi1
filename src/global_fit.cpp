@@ -35,13 +35,13 @@ int main()
     // Operating options
 
     // If to use three basis functions or only two
-    bool minimal = false;
+    bool minimal = true;
 
     // Which range of m3pi bins to consider
     int min = 11, max = 49; 
 
     // Fitter's stopping tolerance
-    double tolerance = 0.001;
+    double tolerance = 0.0001;
 
     // Path to precalculated isoabrs
     std::string iso_path    = data_dir()+"basis_functions/";
@@ -62,7 +62,7 @@ int main()
     auto initial_fit_pars = std::get<1>(x);
 
     auto y   = COMPASS::import_parameters({min, max}, in_pars_file, false);
-    auto BFF = std::get<1>(x);
+    auto BFF = std::get<1>(y);
 
     // Import our data sets  
     std::vector<std::string> labels;        // parameter labels
@@ -112,7 +112,7 @@ int main()
 
     fitter<amplitude,COMPASS::fit_2D> fitter(amp, "Combined");
     fitter.set_tolerance(tolerance/2*1E3);
-    fitter.set_print_level(4);
+    fitter.set_print_level(2);
     fitter.set_strategy(0);
 
     // Add all bins
