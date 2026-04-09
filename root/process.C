@@ -19,9 +19,11 @@
 
 void process()
 {
+    bool minimal  = false;
+    std::cout << "Minimal ? "; 
+    std::cin  << minimal; 
     // Operating parameters
     std::string path     = std::string(std::getenv("BOOTSTRAP"));
-    bool minimal         = false;
     int nBS              = 1E4;  // Total number of bootstraps
 
     // Output name
@@ -35,7 +37,7 @@ void process()
     std::unique_ptr<TTree> tree = std::make_unique<TTree>( "bootstrap", "bootstrap");
 
     // Temporary save locations for parameters
-    std::array<double,N_BIN_MAX-N_BIN_MIN+1> Nc, Ncp, rNd, iNd, mNd, aNd;
+    std::array<double,N_BIN_MAX-N_BIN_MIN+1> Nc, Ncp, mNd, aNd;
     double c, cp, d, fcn;
 
     tree->Branch("fcn", &fcn, "fcn/D");
@@ -47,10 +49,8 @@ void process()
         {
             tree->Branch( ("reNcp_" +si).c_str(), &Ncp[index], ("reNcp_"+si+"/D").c_str());
         };
-        tree->Branch( ("reNd_" +si).c_str(), &rNd[index], ("reNd_"+si+"/D").c_str());
-        tree->Branch( ("imNd_" +si).c_str(), &iNd[index], ("imNd_"+si+"/D").c_str());
-        tree->Branch( ("argNd_"+si).c_str(), &aNd[index], ("argNd_"+si+"/D").c_str());
         tree->Branch( ("modNd_"+si).c_str(), &mNd[index], ("modNd_"+si+"/D").c_str());
+        tree->Branch( ("argNd_"+si).c_str(), &aNd[index], ("argNd_"+si+"/D").c_str());
     };
     tree->Branch("c", &c, "c/D");
     if (!minimal) tree->Branch("cp", &cp, "cp/D");
@@ -80,9 +80,12 @@ void process()
 
             if (n <= N_BIN_MAX-N_BIN_MIN)
             {
-                is >> trash >> trash >> Nc[n] >> Ncp[n] >> trash >> rNd[n] >> iNd[n];
+                double rNd, iNd;
+                is >> trash >> trash >> Nc[n] >> Ncp[n] >> trash >> rNd >> iNd;
                 std::complex<double> Nd(rNd[n], iNd[n]);
-                mNd[n] = abs(Nd); aNd[n] = arg(Nd);
+                mNd[n] = abs(Nd); 
+                double argNd = arg(Nd);
+                aNd[n] = (argNd > 0) ? argNd - 2*M_PI : argNd;
                 n++;
                 continue;
             };
