@@ -21,7 +21,7 @@ void process()
 {
     bool minimal  = false;
     std::cout << "Minimal ? "; 
-    std::cin  << minimal; 
+    std::cin  >> minimal; 
     // Operating parameters
     std::string path     = std::string(std::getenv("BOOTSTRAP"));
     int nBS              = 1E4;  // Total number of bootstraps
@@ -57,9 +57,11 @@ void process()
     tree->Branch("d", &d, "d/D");
     
     // Import data
-    for (int fit = 0; fit < nBS; fit++)
+    for (int fit = 0; fit <= nBS; fit++)
     {
-        std::string in_file  = path+"/fit_"+std::to_string(fit)+"/fit_results.dat";
+     
+	if (fit % 1000 == 0) std::cout << "Processed " << fit << " bootstraps!" << std::endl;
+	std::string in_file  = path+"/fit_"+std::to_string(fit)+"/fit_results.dat";
         std::ifstream infile(in_file);
         if (!infile) continue;
 
@@ -82,7 +84,7 @@ void process()
             {
                 double rNd, iNd;
                 is >> trash >> trash >> Nc[n] >> Ncp[n] >> trash >> rNd >> iNd;
-                std::complex<double> Nd(rNd[n], iNd[n]);
+                std::complex<double> Nd(rNd, iNd);
                 mNd[n] = abs(Nd); 
                 double argNd = arg(Nd);
                 aNd[n] = (argNd > 0) ? argNd - 2*M_PI : argNd;
