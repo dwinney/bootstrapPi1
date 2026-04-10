@@ -68,7 +68,7 @@ void calculate_std()
            is >> alpha >> beta >> trash >> redelta >> imdelta;
            
            if (branch_prefix == "modNc")  bffs.push_back(alpha);
-           if (branch_prefix == "modNcp") bffs.push_back(beta);
+           if (branch_prefix == "modNcp")  bffs.push_back(beta);
            
            complex<double> delta(redelta, imdelta);
            if (branch_prefix == "modNd") bffs.push_back(abs(delta));

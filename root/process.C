@@ -47,7 +47,7 @@ void process()
         tree->Branch( ("modNc_"  +si).c_str(),  &Nc[index], ("|Nc_"+si+"|/D").c_str());
         if (!minimal)
         {
-            tree->Branch( ("reNcp_" +si).c_str(), &Ncp[index], ("reNcp_"+si+"/D").c_str());
+            tree->Branch( ("modNcp_" +si).c_str(), &Ncp[index], ("modNcp_"+si+"/D").c_str());
         };
         tree->Branch( ("modNd_"+si).c_str(), &mNd[index], ("modNd_"+si+"/D").c_str());
         tree->Branch( ("argNd_"+si).c_str(), &aNd[index], ("argNd_"+si+"/D").c_str());
