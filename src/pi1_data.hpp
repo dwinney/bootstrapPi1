@@ -108,7 +108,7 @@ namespace iterateKT { namespace COMPASS
             corrected_norm += std::norm(absM[i])*bin_area[i];
         };
         double norm = sqrt(wrong_norm / corrected_norm);
-
+        print(norm);
         // ---------------------------------------------------------------------------
         //  Organize everything
         out._N    = N_actual;         
@@ -120,7 +120,7 @@ namespace iterateKT { namespace COMPASS
         out._extras["normalization"] = norm;
         out._x = sig1;  
         out._y = sig2;             
-        out._z = absM; out._dz = errM;               
+        out._z = norm*absM; out._dz = norm*errM;               
 
         return out;
     };

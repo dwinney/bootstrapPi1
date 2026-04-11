@@ -104,8 +104,9 @@ int main()
     std::vector<data_set> data; 
     for (int i = min; i <= max; i++)
     {
-        for (int j = 0; j < 4; j++) data.emplace_back(COMPASS::generate_pseudodata(i, j, rand, amp));
-    };
+       // for (int j = 0; j < 4; j++) data.emplace_back(COMPASS::generate_pseudodata(i, j, rand, amp));
+	for (int j = 0; j < 4; j++) data.emplace_back(COMPASS::parse_JSON(i, j));    
+};
 
     // -----------------------------------------------------------------------
     // Set up fitter
@@ -126,7 +127,7 @@ int main()
     for (int i = min; i <= max; i++)
     {
         fitter.fix_argument("alpha_"+to_string(i), 0.); 
-        fitter.make_real(    "beta_"+to_string(i));
+        fitter.fix_argument("beta_"+to_string(i) , 0.);
     };
     // t-slopes as well
     fitter.make_real("b_alpha"); 
