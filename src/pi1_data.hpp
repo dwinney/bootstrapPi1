@@ -60,6 +60,7 @@ namespace iterateKT { namespace COMPASS
         std::string id = "m3π = " + to_string(m3pi,3) + ", t' = " + to_string(-t,3);
 
         auto bins      = data["bins"][bin]["bin_centers"];
+        auto widths    = data["bins"][bin]["bin_widths"];
         auto abs_M     = data["bins"][bin]["abs_M"];
         auto std_abs_M = data["bins"][bin]["std_abs_M"];
         int N          = bins.size();
@@ -79,7 +80,10 @@ namespace iterateKT { namespace COMPASS
     
                 if (!kin->in_decay_region(s1, s2)) continue;
                 if (are_equal(s1, s2))             continue;
-                
+
+                double z = abs_M[i][j];
+                if (is_zero(z))                    continue;
+
                 // Add data
                 sig1.push_back(s1); sig2.push_back(s2);
                 absM.push_back(     abs_M[i][j] ); 
@@ -89,6 +93,9 @@ namespace iterateKT { namespace COMPASS
                 sig1.push_back(s2); sig2.push_back(s1);
                 absM.push_back(     abs_M[i][j] ); 
                 errM.push_back( std_abs_M[i][j] );
+                double ds1 = widths[i], ds2 = widths[j];
+                bin_area.push_back(ds1*ds2*4*sqrt(s1*s2));
+                incorrect_bin_area.push_back(ds1*ds2);
             };
         };
         int N_actual = sig1.size();
@@ -101,7 +108,6 @@ namespace iterateKT { namespace COMPASS
             corrected_norm += std::norm(absM[i])*bin_area[i];
         };
         double norm = sqrt(wrong_norm / corrected_norm);
-
 
         // ---------------------------------------------------------------------------
         //  Organize everything
