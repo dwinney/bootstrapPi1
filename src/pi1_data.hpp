@@ -69,7 +69,7 @@ namespace iterateKT { namespace COMPASS
         // Need to filter out any data outside of the physical kinematic region
     
         kinematics kin = new_kinematics(m3pi, M_PION);
-        std::vector<double> sig1, sig2, absM, errM, bin_area, incorrect_bin_area;
+        std::vector<double> sig1, sig2, absM, errM, right_bin_area, wrong_bin_area;
         for (int i = 0; i < N; i++)
         {
             for (int j = 0; j <= i; j++)
@@ -89,26 +89,21 @@ namespace iterateKT { namespace COMPASS
                 absM.push_back(     abs_M[i][j] ); 
                 errM.push_back( std_abs_M[i][j] );
 
-                // Because the plot is symmetric, add two copies with s1<->s2
-                sig1.push_back(s2); sig2.push_back(s1);
-                absM.push_back(     abs_M[i][j] ); 
-                errM.push_back( std_abs_M[i][j] );
-
                 double ds1 = widths[i], ds2 = widths[j];
-                incorrect_bin_area.push_back(ds1*ds2);
-                          bin_area.push_back(ds1*ds2*4*sqrt(s1*s2));
+                wrong_bin_area.push_back(ds1*ds2);
+                right_bin_area.push_back(ds1*ds2*4*sqrt(s1*s2));
             };
         };
         int N_actual = sig1.size();
         
         // Normalization of the data files is wrong here we fix it
-        double wrong_norm = 0, correct_norm = 0;
+        double wrong_norm = 0, right_norm = 0;
         for (int i = 0; i < absM.size(); i++)
         {
-            correct_norm += std::norm(absM[i])*incorrect_bin_area[i];
-            wrong_norm   += std::norm(absM[i])*bin_area[i];
+            right_norm += std::norm(absM[i])*wrong_bin_area[i];
+            wrong_norm += std::norm(absM[i])*right_bin_area[i];
         };
-        double norm = sqrt(correct_norm / wrong_norm);
+        double norm = sqrt(right_norm / wrong_norm);
         
         // ---------------------------------------------------------------------------
         //  Organize everything

@@ -104,9 +104,8 @@ int main()
     std::vector<data_set> data; 
     for (int i = min; i <= max; i++)
     {
-       // for (int j = 0; j < 4; j++) data.emplace_back(COMPASS::generate_pseudodata(i, j, rand, amp));
-	for (int j = 0; j < 4; j++) data.emplace_back(COMPASS::parse_JSON(i, j));    
-};
+       for (int j = 0; j < 4; j++) data.emplace_back(COMPASS::generate_pseudodata(i, j, rand, amp));
+    };
 
     // -----------------------------------------------------------------------
     // Set up fitter
