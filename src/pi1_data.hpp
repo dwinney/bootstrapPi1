@@ -93,22 +93,23 @@ namespace iterateKT { namespace COMPASS
                 sig1.push_back(s2); sig2.push_back(s1);
                 absM.push_back(     abs_M[i][j] ); 
                 errM.push_back( std_abs_M[i][j] );
+
                 double ds1 = widths[i], ds2 = widths[j];
-                bin_area.push_back(ds1*ds2*4*sqrt(s1*s2));
                 incorrect_bin_area.push_back(ds1*ds2);
+                          bin_area.push_back(ds1*ds2*4*sqrt(s1*s2));
             };
         };
         int N_actual = sig1.size();
         
         // Normalization of the data files is wrong here we fix it
-        double wrong_norm = 0, corrected_norm = 0;
+        double wrong_norm = 0, correct_norm = 0;
         for (int i = 0; i < absM.size(); i++)
         {
-            wrong_norm += std::norm(absM[i])*incorrect_bin_area[i];
-            corrected_norm += std::norm(absM[i])*bin_area[i];
+            correct_norm += std::norm(absM[i])*incorrect_bin_area[i];
+            wrong_norm   += std::norm(absM[i])*bin_area[i];
         };
-        double norm = sqrt(wrong_norm / corrected_norm);
-        print(norm);
+        double norm = sqrt(correct_norm / wrong_norm);
+        
         // ---------------------------------------------------------------------------
         //  Organize everything
         out._N    = N_actual;         
@@ -117,7 +118,6 @@ namespace iterateKT { namespace COMPASS
         out._extras["Nbins"] = N; 
         out._extras["m3pi"] = m3pi; 
         out._extras["t"]    = t;    
-        out._extras["normalization"] = norm;
         out._x = sig1;  
         out._y = sig2;             
         out._z = norm*absM; out._dz = norm*errM;               
