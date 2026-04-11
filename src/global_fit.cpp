@@ -35,7 +35,7 @@ int main()
     // Operating options
 
     // If to use three basis functions or only two
-    bool minimal = true;
+    bool minimal = false;
 
     // Which range of m3pi bins to consider
     int min = 11, max = 49; 

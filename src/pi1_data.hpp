@@ -68,7 +68,7 @@ namespace iterateKT { namespace COMPASS
         // Need to filter out any data outside of the physical kinematic region
     
         kinematics kin = new_kinematics(m3pi, M_PION);
-        std::vector<double> sig1, sig2, absM, errM;
+        std::vector<double> sig1, sig2, absM, errM, bin_area, incorrect_bin_area;
         for (int i = 0; i < N; i++)
         {
             for (int j = 0; j <= i; j++)
@@ -92,6 +92,16 @@ namespace iterateKT { namespace COMPASS
             };
         };
         int N_actual = sig1.size();
+        
+        // Normalization of the data files is wrong here we fix it
+        double wrong_norm = 0, corrected_norm = 0;
+        for (int i = 0; i < absM.size(); i++)
+        {
+            wrong_norm += std::norm(absM[i])*incorrect_bin_area[i];
+            corrected_norm += std::norm(absM[i])*bin_area[i];
+        };
+        double norm = sqrt(wrong_norm / corrected_norm);
+
 
         // ---------------------------------------------------------------------------
         //  Organize everything
@@ -101,6 +111,7 @@ namespace iterateKT { namespace COMPASS
         out._extras["Nbins"] = N; 
         out._extras["m3pi"] = m3pi; 
         out._extras["t"]    = t;    
+        out._extras["normalization"] = norm;
         out._x = sig1;  
         out._y = sig2;             
         out._z = absM; out._dz = errM;               
@@ -126,86 +137,27 @@ namespace iterateKT { namespace COMPASS
     inline data_set generate_pseudodata(uint m3pi_bin, std::string input, TRandom * rand)
     {
         // Final outputs
-        data_set out;
-
-        // ---------------------------------------------------------------------------
-        // Read in json and organize everything 
-
-        std::string path_to_file = data_dir() + "raw_files/" + input;
-        std::ifstream raw_file(path_to_file);
-        if (!raw_file) fatal("Could not open file: " + path_to_file);
-        json data = json::parse(raw_file);
-    
-        // Calculate central m3pi in bin
-        std::string bin = "m3pi_bin_number_" + to_string(m3pi_bin);
-        auto m3pi_upper = data["bins"][bin]["bin_ranges"]["m3pi_upper_limit"].template get<double>();
-        auto m3pi_lower = data["bins"][bin]["bin_ranges"]["m3pi_lower_limit"].template get<double>();
-        double m3pi = (m3pi_upper + m3pi_lower)/2;
-        
-        // Calculate central t in bin
-        auto t_upper = data["bins"][bin]["bin_ranges"]["t_upper_limit"].template get<double>();
-        auto t_lower = data["bins"][bin]["bin_ranges"]["t_lower_limit"].template get<double>();
-        double t = -(t_upper + t_lower)/2;
-    
-        std::string id = "m3π = " + to_string(m3pi,3) + ", t' = " + to_string(-t,3);
-
-        auto bins      = data["bins"][bin]["bin_centers"];
-        auto abs_M     = data["bins"][bin]["abs_M"];
-        auto std_abs_M = data["bins"][bin]["std_abs_M"];
-        int N          = bins.size();
+        data_set data = parse_JSON(m3pi_bin, input);
 
         // ---------------------------------------------------------------------------
         // Need to filter out any data outside of the physical kinematic region
     
-        kinematics kin = new_kinematics(m3pi, M_PION);
-        std::vector<double> sig1, sig2, absM, errM;
+        kinematics kin = new_kinematics(data._extras["m3pi"], M_PION);
+        std::vector<double> resampled_absM;
 
         // Random number generator with random seed
 
-        for (int i = 0; i < N; i++)
+        for (int i = 0; i < data._z.size(); i++)
         {
-            for (int j = 0; j <= i; j++)
-            {
-                double s1 = bins[i];
-                double s2 = bins[j];
-                s1 *= s1; s2 *= s2; // mass squared
-    
-                if (!kin->in_decay_region(s1, s2)) continue;
-                if (are_equal(s1, s2))             continue;
-                
-                
-                // Here instead of saving abs_M, we resample it
-                double mean      = abs_M[i][j];
-                double std_dev   = std_abs_M[i][j];
-                if ( is_zero(std_dev) ) continue;
+            double mean      = data._z[i];
+            double std_dev   = data._dz[i];
 
-                double resampled = rand->Gaus(mean, std_dev);
-
-                sig1.push_back(s1); sig2.push_back(s2);
-                absM.push_back(resampled); 
-                errM.push_back(std_dev);
-
-                // Symmetric errors
-                sig1.push_back(s2); sig2.push_back(s1);
-                absM.push_back(resampled); 
-                errM.push_back(std_dev);
-            };
+            double resampled = rand->Gaus(mean, std_dev);
+            resampled_absM.push_back(resampled); 
         };
-        int N_actual = sig1.size();
 
-        // ---------------------------------------------------------------------------
-        //  Organize everything
-        out._N    = N_actual;         
-        out._id   = id;               
-        out._type = kDalitz;     
-        out._extras["Nbins"] = N; 
-        out._extras["m3pi"]  = m3pi; 
-        out._extras["t"]     = t;    
-        out._x = sig1;  
-        out._y = sig2;             
-        out._z = absM; out._dz = errM;               
-
-        return out; 
+        data._z = resampled_absM;
+        return data; 
     };
 
     // Do the above but input bin numbers IDs which are subsequently saved in the data_set
@@ -223,86 +175,28 @@ namespace iterateKT { namespace COMPASS
     inline data_set generate_pseudodata(uint m3pi_bin, std::string input, TRandom * rand, amplitude amp)
     {
         // Final outputs
-        data_set out;
-
-        // ---------------------------------------------------------------------------
-        // Read in json and organize everything 
-
-        std::string path_to_file = data_dir() + "raw_files/" + input;
-        std::ifstream raw_file(path_to_file);
-        if (!raw_file) fatal("Could not open file: " + path_to_file);
-        json data = json::parse(raw_file);
-    
-        // Calculate central m3pi in bin
-        std::string bin = "m3pi_bin_number_" + to_string(m3pi_bin);
-        auto m3pi_upper = data["bins"][bin]["bin_ranges"]["m3pi_upper_limit"].template get<double>();
-        auto m3pi_lower = data["bins"][bin]["bin_ranges"]["m3pi_lower_limit"].template get<double>();
-        double m3pi = (m3pi_upper + m3pi_lower)/2;
-        
-        // Calculate central t in bin
-        auto t_upper = data["bins"][bin]["bin_ranges"]["t_upper_limit"].template get<double>();
-        auto t_lower = data["bins"][bin]["bin_ranges"]["t_lower_limit"].template get<double>();
-        double t = -(t_upper + t_lower)/2;
-    
-        std::string id = "m3π = " + to_string(m3pi,3) + ", t' = " + to_string(-t,3);
-
-        auto bins      = data["bins"][bin]["bin_centers"];
-        auto abs_M     = data["bins"][bin]["abs_M"];
-        auto std_abs_M = data["bins"][bin]["std_abs_M"];
-        int N          = bins.size();
+        data_set data = parse_JSON(m3pi_bin, input);
 
         // ---------------------------------------------------------------------------
         // Need to filter out any data outside of the physical kinematic region
     
         kinematics kin = amp->get_kinematics();
-        std::vector<double> sig1, sig2, absM, errM;
+        std::vector<double> resampled_absM;
 
-        for (int i = 0; i < N; i++)
-        {
-            for (int j = 0; j < i; j++)
-            {
-                double s1 = bins[i];
-                double s2 = bins[j];
-                
-                if (are_equal(s1, s2))             continue;
-                if (!kin->in_decay_region(s1, s2)) continue;
-                
-                s1 *= s1; s2 *= s2; // mass squared
-                
-                // Here instead of saving abs_M, we resample it
-                double mean      = abs_M[i][j];
-                double std_dev   = std_abs_M[i][j];
-                if (is_zero(std_dev)) continue;
-                
-                double model     = abs(amp->evaluate_in_dalitz(s1, s2));
-                double chi2      = std::norm( (mean-model)/std_dev );
-                double resampled = (chi2 > 1) ? rand->Gaus(mean, sqrt(chi2)*std_dev) : rand->Gaus(mean, std_dev);
+        for (int i = 0; i < data._z.size(); i++)
+        {        
+            // Here instead of saving abs_M, we resample it
+            double mean      = data._z[i];
+            double std_dev   = data._dz[i];
+            
+            double model     = abs(amp->evaluate_in_dalitz(data._x[i], data._y[i]));
+            double chi2      = std::norm( (mean-model)/std_dev );
+            double resampled = (chi2 > 1) ? rand->Gaus(mean, sqrt(chi2)*std_dev) : rand->Gaus(mean, std_dev);
 
-                sig1.push_back(s1); sig2.push_back(s2);
-                absM.push_back(resampled); 
-                errM.push_back(std_dev);
-
-                // Symmetric errors
-                sig1.push_back(s2); sig2.push_back(s1);
-                absM.push_back(resampled); 
-                errM.push_back(std_dev);
-            };
+            resampled_absM.push_back(resampled); 
         };
-        int N_actual = sig1.size();
-
-        // ---------------------------------------------------------------------------
-        //  Organize everything
-        out._N    = N_actual;         
-        out._id   = id;               
-        out._type = kDalitz;     
-        out._extras["Nbins"] = N; 
-        out._extras["m3pi"]  = m3pi; 
-        out._extras["t"]     = t;    
-        out._x = sig1;  
-        out._y = sig2;             
-        out._z = absM; out._dz = errM;               
-
-        return out; 
+        data._z = resampled_absM;
+        return data; 
     };
 
     // Do the above but input bin numbers IDs which are subsequently saved in the data_set
