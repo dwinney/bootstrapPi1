@@ -34,34 +34,31 @@ int main()
     // -----------------------------------------------------------------------
     // Operating options
 
-    // If to use three basis functions or only two
-    bool minimal = false;
-
     // Which range of m3pi bins to consider
-    int min = 11, max = 49; 
+    int min = 12, max = 49; 
 
     // Fitter's stopping tolerance
-    double tolerance = 0.0001;
+    double tolerance = 0.001;
 
     // Path to precalculated isoabrs
     std::string iso_path    = data_dir()+"basis_functions/";
     // and the prefix given to each file
-    std::string file_prefix = "CCD";
+    std::string file_prefix = "CD";
     // Are we taking initial values from file? if so which?
-    std::string in_pars_file = (minimal) ? data_dir()+"minimal.dat" : data_dir()+"nonminimal.dat";
+    std::string in_pars_file = data_dir()+"best_fit.dat";
     // Where do we export the fit parameter values
     std::string out_pars_file  = current_dir()+"fit_results.dat";
     // Put a file description at the beginning
-    std::string description = "contact + contact + deck, no form factor";
+    std::string description = "contact + deck";
     
     // -----------------------------------------------------------------------
     // Import initial values
     
-    auto x = COMPASS::import_parameters({min, max}, in_pars_file, minimal);
+    auto x = COMPASS::import_parameters({min, max}, in_pars_file);
     auto m3pis            = std::get<0>(x);
     auto initial_fit_pars = std::get<1>(x);
 
-    auto y   = COMPASS::import_parameters({min, max}, in_pars_file, false);
+    auto y   = COMPASS::import_parameters({min, max}, in_pars_file);
     auto BFF = std::get<1>(y);
 
     // Import our data sets  
@@ -69,11 +66,9 @@ int main()
     for (int i = min; i <= max; i++)
     {
         labels.push_back("alpha_"+to_string(i));
-        labels.push_back("beta_" +to_string(i));
         labels.push_back("delta_"+to_string(i));
     };
     labels.push_back("b_alpha");
-    labels.push_back("b_beta");
     labels.push_back("b_delta");
     
     // -----------------------------------------------------------------------
@@ -119,25 +114,17 @@ int main()
     fitter.add_data(data);
 
     // Add three t-slopes in addition to three subtraction coeffs
-    fitter.add_extra_parameters(3);
+    fitter.add_extra_parameters(2);
 
     fitter.set_parameter_labels(labels);
     // Fix alphas to all be real (and positive)
     for (int i = min; i <= max; i++)
     {
         fitter.fix_argument("alpha_"+to_string(i), 0.); 
-        fitter.fix_argument("beta_"+to_string(i) , 0.);
     };
     // t-slopes as well
     fitter.make_real("b_alpha"); 
-    fitter.make_real("b_beta"); 
     fitter.make_real("b_delta"); 
-
-    if (minimal)
-    {
-        for (int i = min; i <= max; i++) fitter.fix_parameter("beta_"+to_string(i), 0.);
-        fitter.fix_parameter("b_beta", 0.);
-    };
 
     fitter.do_fit(initial_fit_pars);
     

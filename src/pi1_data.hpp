@@ -81,12 +81,14 @@ namespace iterateKT { namespace COMPASS
                 if (!kin->in_decay_region(s1, s2)) continue;
                 if (are_equal(s1, s2))             continue;
 
-                double z = abs_M[i][j];
+                double  z = abs_M[i][j];
+                double dz = std_abs_M[i][j];
+                if (is_zero(dz)) continue;
 
                 // Add data
                 sig1.push_back(s1); sig2.push_back(s2);
-                absM.push_back(     abs_M[i][j] ); 
-                errM.push_back( std_abs_M[i][j] );
+                absM.push_back( z); 
+                errM.push_back(dz);
 
                 double ds1 = widths[i], ds2 = widths[j];
                 wrong_bin_area.push_back(ds1*ds2);
@@ -181,21 +183,21 @@ namespace iterateKT { namespace COMPASS
         // Need to filter out any data outside of the physical kinematic region
     
         kinematics kin = amp->get_kinematics();
-        std::vector<double> resampled_absM;
+        std::vector<double> resampled_absM, scaled_std_dev;
 
         for (int i = 0; i < data._z.size(); i++)
         {        
             // Here instead of saving abs_M, we resample it
-            double mean      = data._z[i];
-            double std_dev   = data._dz[i];
+            double mean        = data._z[i];
+            double std_dev     = data._dz[i];
             
-            double model     = abs(amp->evaluate_in_dalitz(data._x[i], data._y[i]));
-            double chi2      = std::norm( (mean-model)/std_dev );
-            double resampled = (chi2 > 1) ? rand->Gaus(mean, sqrt(chi2)*std_dev) : rand->Gaus(mean, std_dev);
-
+            double model       = std::abs(amp->evaluate_in_dalitz(data._x[i], data._y[i]));
+            double chi2        = std::norm( (mean-model)/std_dev );
+            double scaled      = (chi2 > 1) ? sqrt(chi2)*std_dev : std_dev;
+            double resampled   =  rand->Gaus(mean, scaled);
             resampled_absM.push_back(resampled); 
         };
-        data._z = resampled_absM;
+        data._z = resampled_absM; 
         return data; 
     };
 
