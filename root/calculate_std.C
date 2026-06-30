@@ -15,12 +15,13 @@
 #include <limits>
 #include "TTree.h"
 
-#define N_BIN_MIN 11
+#define N_BIN_MIN 13
 #define N_BIN_MAX 49
 
 void calculate_std()
 {
     string branch_prefix  = "modNc";
+    string file_prefix    = "pars";
 
     cout << "Variable ? ";
     cin  >> branch_prefix;
@@ -30,9 +31,9 @@ void calculate_std()
     // ----------------------------------------------------------------------------------
     // Read in the best fit pars to compare
     
-    string in_file  = "pars.root" ;
-    string bff_file = "../data/"+file_prefix+".dat";
-    string out_file = file_prefix+ "_"+branch_prefix+".dat";
+    string in_file  = file_prefix + ".root" ;
+    string bff_file = "../data/best_fit.dat";
+    string out_file = branch_prefix+".dat";
     
     unique_ptr<TFile> rootFile( TFile::Open(in_file.c_str()) );
     auto tree = rootFile->Get<TTree>("bootstrap");
@@ -64,7 +65,6 @@ void calculate_std()
            is >> alpha >> redelta >> imdelta;
            
            if (branch_prefix == "modNc")  bffs.push_back(alpha);
-           if (branch_prefix == "modNcp")  bffs.push_back(beta);
            
            complex<double> delta(redelta, imdelta);
            if (branch_prefix == "modNd") bffs.push_back(abs(delta));
