@@ -21,20 +21,16 @@
 void calculate_std()
 {
     string branch_prefix  = "modNc";
-    string file_prefix    = "nonminimal";
 
     cout << "Variable ? ";
     cin  >> branch_prefix;
 
-    cout << "Minimal or nonminimal ? ";
-    cin  >> file_prefix;
-    cout << endl;
     cin.ignore ( std::numeric_limits<std::streamsize>::max(), '\n' ); 
 
     // ----------------------------------------------------------------------------------
     // Read in the best fit pars to compare
     
-    string in_file  = file_prefix+".root" ;
+    string in_file  = "pars.root" ;
     string bff_file = "../data/"+file_prefix+".dat";
     string out_file = file_prefix+ "_"+branch_prefix+".dat";
     
@@ -59,13 +55,13 @@ void calculate_std()
        
        if (nimported <= N_BIN_MAX-N_BIN_MIN)
        {
-           double trash, m3pi, alpha, beta, redelta, imdelta;
+           double trash, m3pi, alpha, redelta, imdelta;
            // Dont care about first two columns
            is >> trash >> m3pi;
            m3pis.push_back(m3pi);
 
            // we do about these though
-           is >> alpha >> beta >> trash >> redelta >> imdelta;
+           is >> alpha >> redelta >> imdelta;
            
            if (branch_prefix == "modNc")  bffs.push_back(alpha);
            if (branch_prefix == "modNcp")  bffs.push_back(beta);

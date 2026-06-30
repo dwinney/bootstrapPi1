@@ -19,15 +19,12 @@
 
 void process()
 {
-    bool minimal  = false;
-    std::cout << "Minimal ? "; 
-    std::cin  >> minimal; 
     // Operating parameters
     std::string path     = std::string(std::getenv("BOOTSTRAP"));
     int nBS              = 1E4;  // Total number of bootstraps
 
     // Output name
-    std::string out_file = (minimal) ? "minimal.root" : "nonminimal.root";
+    std::string out_file = "pars.root";
 
     // Set up ROOT file
     TH1::AddDirectory( kFALSE );
@@ -37,23 +34,18 @@ void process()
     std::unique_ptr<TTree> tree = std::make_unique<TTree>( "bootstrap", "bootstrap");
 
     // Temporary save locations for parameters
-    std::array<double,N_BIN_MAX-N_BIN_MIN+1> Nc, Ncp, mNd, aNd;
-    double c, cp, d, fcn;
+    std::array<double,N_BIN_MAX-N_BIN_MIN+1> Nc, mNd, aNd;
+    double c, d, fcn;
 
     tree->Branch("fcn", &fcn, "fcn/D");
     for (int index = 0; index <= N_BIN_MAX-N_BIN_MIN; index++)
     {
         std::string si = std::to_string(index+N_BIN_MIN);
         tree->Branch( ("modNc_"  +si).c_str(),  &Nc[index], ("|Nc_"+si+"|/D").c_str());
-        if (!minimal)
-        {
-            tree->Branch( ("modNcp_" +si).c_str(), &Ncp[index], ("modNcp_"+si+"/D").c_str());
-        };
-        tree->Branch( ("modNd_"+si).c_str(), &mNd[index], ("modNd_"+si+"/D").c_str());
-        tree->Branch( ("argNd_"+si).c_str(), &aNd[index], ("argNd_"+si+"/D").c_str());
+        tree->Branch( ("modNd_"+si).c_str(), &mNd[index],   ("|Nd_"+si+"|/D").c_str());
+        tree->Branch( ("argNd_"+si).c_str(), &aNd[index],   ("argNd_"+si+"/D").c_str());
     };
     tree->Branch("c", &c, "c/D");
-    if (!minimal) tree->Branch("cp", &cp, "cp/D");
     tree->Branch("d", &d, "d/D");
     
     // Import data
@@ -83,7 +75,7 @@ void process()
             if (n <= N_BIN_MAX-N_BIN_MIN)
             {
                 double rNd, iNd;
-                is >> trash >> trash >> Nc[n] >> Ncp[n] >> trash >> rNd >> iNd;
+                is >> trash >> trash >> Nc[n] >> rNd >> iNd;
                 std::complex<double> Nd(rNd, iNd);
                 mNd[n] = abs(Nd); 
                 double argNd = arg(Nd);
