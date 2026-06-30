@@ -38,7 +38,7 @@ int main()
     int min = 12, max = 49; 
 
     // Fitter's stopping tolerance
-    double tolerance = 0.001;
+    double tolerance = 0.01;
 
     // Path to precalculated isoabrs
     std::string iso_path    = data_dir()+"basis_functions/";

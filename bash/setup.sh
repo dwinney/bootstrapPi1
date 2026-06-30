@@ -34,5 +34,6 @@ while [[ $i -le $max ]] ; do
     ) > $BOOTSTRAP/fit_$i/run.sh
     chmod u+x $BOOTSTRAP/fit_$i/run.sh
     # increment
+    echo $i
     (( i += 1 ))
 done
