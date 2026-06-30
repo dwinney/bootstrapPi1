@@ -21,7 +21,9 @@
 void calculate_std()
 {
     string branch_prefix  = "modNc";
-    string file_prefix    = "pars";
+
+    string main_dir   = gSystem->Getenv("BOOTSTRAP_SRC");
+    string file_prefix = main_dir+"/data/pars/";
 
     cout << "Variable ? ";
     cin  >> branch_prefix;
@@ -31,8 +33,8 @@ void calculate_std()
     // ----------------------------------------------------------------------------------
     // Read in the best fit pars to compare
     
-    string in_file  = file_prefix + ".root" ;
-    string bff_file = "../data/best_fit.dat";
+    string in_file  = file_prefix + "bootstrapped.root" ;
+    string bff_file = file_prefix + "best_fit.dat";
     string out_file = branch_prefix+".dat";
     
     unique_ptr<TFile> rootFile( TFile::Open(in_file.c_str()) );
