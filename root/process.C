@@ -14,7 +14,7 @@
 #include <sstream>
 #include "TTree.h"
 
-#define N_BIN_MIN 11
+#define N_BIN_MIN 12
 #define N_BIN_MAX 49
 
 void process()
@@ -83,7 +83,8 @@ void process()
                 n++;
                 continue;
             };
-            is >> c >> cp >> d;  
+            is >> c >> d;  
+	    cout << left << setw(10) << c << setw(10) << d <<  endl;
             break;
         };
         tree->Fill();
