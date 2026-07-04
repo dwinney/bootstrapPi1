@@ -46,6 +46,6 @@ void plot_pars()
     p2.set_legend(0.675, 0.725);
     p2.add_horizontal(-PI, {2011, kDashed});
     p2.set_labels("#it{m}_{3#pi}   [GeV]", "#it{#phi}#kern[-0.1]{_{#it{d}}} - #it{#phi}#kern[-0.1]{_{#it{c}}}");
-    p2.add_data(phi[0], {phi[1], phi[2]},  dot(jpacColor::Orange));
+    p2.add_data(phi[0], {phi[1], phi[2]},  dot(jpacColor::Green));
     p2.save("phi.pdf");
 };
