@@ -113,15 +113,16 @@ void plot_width_m3pi()
     plotter plotter;
 
     auto blue  = square(jpacColor::Blue, "Contact #times 0.1");
-    blue._draw_opt = "PL";
+    blue._draw_opt = "P";
     auto red   = square(jpacColor::Red, "Deck #times 0.1");
-    red._draw_opt = "PL";
+    red._draw_opt = "P";
     auto green = square(jpacColor::Green, "Full");
     green._draw_opt = "PL";
 
     // Plot widths as a function of m3pi
     plot p1 = plotter.new_plot();
     p1.set_legend(0.2, 0.65);
+    p1.add_logo(true);
     p1.set_ranges({m3pis[0], m3pis.back()}, {0, 8.7});
     p1.add_header("#minus #it{t} = 0.12 GeV^{2}");
     p1.add_curve(m3pis, mws_c[0]/10,   blue); 
@@ -129,10 +130,11 @@ void plot_width_m3pi()
     p1.add_curve(m3pis, mws[0],        green); 
     p1.add_data(m3pis, ews[0],    dot(jpacColor::DarkGrey, "Data"));
     p1.set_labels("#it{m}_{3#pi}  [GeV]", "#Gamma(#it{t}, #it{m}_{3#pi}^{2})    [a.u.]");
-    p1.save("intensity_m3pi_0.pdf");
+    p1.save("intensity_m3pi_0.eps");
 
     plot p2 = plotter.new_plot();
     p2.set_legend(0.2, 0.65);
+    p2.add_logo(true);
     p2.set_ranges({m3pis[0], m3pis.back()}, {0, 8.7});
     p2.add_header("#minus #it{t} = 0.17 GeV^{2}");
     p2.add_curve(m3pis, mws_c[1]/10,   blue); 
@@ -140,9 +142,10 @@ void plot_width_m3pi()
     p2.add_curve(m3pis, mws[1],        green); 
     p2.add_data(m3pis, ews[1],    dot(jpacColor::DarkGrey, "Data"));
     p2.set_labels("#it{m}_{3#pi}  [GeV]", "#Gamma(#it{t}, #it{m}_{3#pi}^{2})    [a.u.]");
-    p2.save("intensity_m3pi_1.pdf");
+    p2.save("intensity_m3pi_1.eps");
 
     plot p3 = plotter.new_plot();
+    p3.add_logo(true);
     p3.set_legend(0.2, 0.65);
     p3.set_ranges({m3pis[0], m3pis.back()}, {0, 8.7});
     p3.add_header("#minus #it{t} = 0.26 GeV^{2}");
@@ -151,10 +154,11 @@ void plot_width_m3pi()
     p3.add_curve(m3pis, mws[2],        green); 
     p3.add_data(m3pis, ews[2],    dot(jpacColor::DarkGrey, "Data"));
     p3.set_labels("#it{m}_{3#pi}  [GeV]", "#Gamma(#it{t}, #it{m}_{3#pi}^{2})    [a.u.]");
-    p3.save("intensity_m3pi_2.pdf");
+    p3.save("intensity_m3pi_2.eps");
 
     plot p4 = plotter.new_plot();
     p4.set_legend(0.2, 0.65);
+    p4.add_logo(true);
     p4.set_ranges({m3pis[0], m3pis.back()}, {0, 8.7});
     p4.add_header("#minus #it{t} = 0.66 GeV^{2}");
     p4.add_curve(m3pis, mws_c[3]/10,   blue); 
@@ -162,5 +166,5 @@ void plot_width_m3pi()
     p4.add_curve(m3pis, mws[3],        green); 
     p4.add_data(m3pis, ews[3],    dot(jpacColor::DarkGrey, "Data"));
     p4.set_labels("#it{m}_{3#pi}  [GeV]", "#Gamma(#it{t}, #it{m}_{3#pi}^{2})    [a.u.]");
-    p4.save("intensity_m3pi_3.pdf");
+    p4.save("intensity_m3pi_3.eps");
 };

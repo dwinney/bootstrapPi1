@@ -73,6 +73,7 @@ void plot_width_t()
     // Plot widths as a function of m3pi
     plot p1 = plotter.new_plot();
     p1.set_legend(0.25, 0.1);
+    p1.add_logo(true);
     p1.set_logscale(false, true);
     p1.add_header("#it{m}_{3#pi} = " + to_string(COMPASS::m_bins[m3pibins[0]-11]) + " GeV");
     p1.set_labels("#minus #it{t}  [GeV^{2}]", "Integrated Intensity  [a.u.]");
@@ -102,5 +103,5 @@ void plot_width_t()
     p3.add_curve(z[0], z[1]);
     p3.add_data ({ets, twidths},  ews[2]/1E4,  dot(jpacColor::DarkGrey));
 
-    plotter.stack({p1,p2,p3}, "widths.pdf");   
+    plotter.stack({p1,p2,p3}, "widths.eps");   
 };
